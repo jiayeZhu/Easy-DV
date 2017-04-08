@@ -1,0 +1,23 @@
+{
+  "name": "easy-dv",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiayeZhu/Easy-DV.git"
+  },
+  "author": "Jay Zhu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jiayeZhu/Easy-DV/issues"
+  },
+  "homepage": "https://github.com/jiayeZhu/Easy-DV#readme",
+  "devDependencies": {
+    "electron": "~1.6.2"
+  }
+}
