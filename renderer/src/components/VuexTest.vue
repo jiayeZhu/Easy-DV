@@ -1,6 +1,7 @@
 <template>
   <div>
     <p>{{count}}</p>
+    <p>current stage:{{currentStage}}</p>
     <p>getter:{{getterMain}}</p>
     <p>
       <button @click="add">add</button>
@@ -50,6 +51,9 @@ import * as MT  from '../vuex/mutation-types';
     computed: {
       getterMain () {
         return this.$store.getters.mainCounter;
+      },
+      currentStage () {
+        return this.$store.getters.currentStage;
       }
     },
     methods:{

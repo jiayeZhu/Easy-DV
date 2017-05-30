@@ -24,9 +24,10 @@ module.exports = {
     // console.log('received');
     // console.log('bbb');
     // console.log(arg);
-    let collection = db.collection('aggtest');
+    let collection = db.collection('accessLog');
     // console.log(JSON.stringify(AggItems));
-    let cursor = collection.aggregate(AggItems,{cursor:{batchSize:1}});
+    console.log('#####',AggItems,'$$$$$');
+    let cursor = collection.aggregate(AggItems,{cursor:{batchSize:10000}});
     // console.log('a',cursor.toArray());
     return cursor.toArray();
   }

@@ -22,6 +22,14 @@ const ipcRes = {
     let result = await mongoOP.aggregateQuery(arg.AggItems);
     log(result);
     event.sender.send(arg.channel,result);
+  },
+  async barData () {
+    let [event,arg] = arguments;
+    log(event);
+    log(arg);
+    let result = await mongoOP.aggregateQuery(arg.aggPipes);
+    log(result);
+    event.sender.send(arg.channel,result);
   }  
 }
 

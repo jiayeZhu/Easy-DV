@@ -2,29 +2,32 @@
   <div class="layout" :class="{'layout-hide-text': spanLeft < 5}">
     <Row type="flex" style="height:100%" >
       <i-col :span="spanLeft" class="layout-menu-left">
-        <Menu active-name="1" theme="dark" width="auto">
+        <Menu :active-name="currentStage" theme="dark" width="auto" @on-select="select">
           <div class="layout-logo-left"><h2 id="logo">Easy-DV</h2></div>
-          <router-link to="/echart">
-            <Menu-item name="1" class="flex">
+          <router-link to="/">
+            <Menu-item name="DB" class="flex">
               <Icon type="cube" :size="iconSize"></Icon>
               <span class="layout-text">连接DB</span>
             </Menu-item>
           </router-link>
-          <router-link to="/vuextest">
-            <Menu-item name="2" class="flex">
+          <router-link to="/datafilter">
+            <Menu-item name="datafilter" class="flex">
               <Icon type="ios-keypad" :size="iconSize"></Icon>
               <span class="layout-text">数据选取</span>
             </Menu-item>
           </router-link>
-          <Menu-item name="3" class="flex">
+          <router-link to="/echart">
+<Menu-item name="DVbuild" class="flex">
             <Icon type="ios-analytics" :size="iconSize"></Icon>
             <span class="layout-text">可视化数据构建</span>
           </Menu-item>
-          <Menu-item name="4" class="flex">
+          </router-link>
+          
+          <Menu-item name="show" class="flex">
             <Icon type="ios-analytics" :size="iconSize"></Icon>
             <span class="layout-text">可视化展示</span>
           </Menu-item>
-          <Menu-item name="5" class="flex">
+          <Menu-item name="save" class="flex">
             <Icon type="ios-analytics" :size="iconSize"></Icon>
             <span class="layout-text">数据存档</span>
           </Menu-item>
@@ -39,16 +42,16 @@
         <div class="layout-breadcrumb">
           <Breadcrumb>
             <Breadcrumb-item href="/">首页</Breadcrumb-item>
-            <Breadcrumb-item href="#">应用中心</Breadcrumb-item>
-            <Breadcrumb-item>某应用</Breadcrumb-item>
+            <Breadcrumb-item >{{levelTwo}}</Breadcrumb-item>
+            <!--<Breadcrumb-item>某应用</Breadcrumb-item>-->
           </Breadcrumb>
         </div>
         <div class="layout-content">
           <div class="layout-content-main">
             <transition name="fade" mode="out-in">
-              <keep-alive>
+              <!--<keep-alive>-->
                 <router-view></router-view>
-              </keep-alive>
+              <!--</keep-alive>-->
             </transition>
             
               <!--<IEcharts :option="bar" :loading="loading" :style="style" @ready="onReady" @click="onClick"></IEcharts>-->
@@ -64,16 +67,31 @@
 </template>
 
 <script>
+import * as MT  from '../vuex/mutation-types';
+
 export default {
   data () {
     return {
       spanLeft: 5,
-      spanRight: 19
+      spanRight: 19,
     }
   },
   computed: {
     iconSize () {
       return this.spanLeft === 5 ? 18 : 24;
+    },
+    levelTwo () {
+      let EnumLevel2 = {
+        'DB':'连接DB',
+        'datafilter':'数据选取',
+        'DVbuild':'可视化数据构建',
+        'show':'可视化展示',
+        'save':'数据存档'
+      }
+      return EnumLevel2[this.$route.path.split('/')[1]];
+    },
+    currentStage () {
+      return this.$store.getters.currentStage;
     }
   },
   methods: {
@@ -85,6 +103,16 @@ export default {
         this.spanLeft = 5;
         this.spanRight = 19;
       }
+    },
+    select (name) {
+      let EnumMutation = {
+        'DB': MT.CHANGE_STAGE_2_DBCONNECTION,
+        'datafilter': MT.CHANGE_STAGE_2_DATAFILTER,
+        'DVbuild': MT.CHANGE_STAGE_2_DVBUILDING,
+        'show': MT.CHANGE_STAGE_2_SHOW,
+        'save': MT.CHANGE_STAGE_2_SAVE
+      }
+      this.$store.commit(EnumMutation[name]);
     }
   }
 }

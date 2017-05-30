@@ -5,6 +5,7 @@ import MainMenu from '@/components/MainMenu'
 import Chart from '@/components/Chart'
 import VuexTest from '@/components/VuexTest'
 import DBPage from '@/components/DBConnect'
+import DataFilterPage from '@/components/DataFilter'
 
 Vue.use(Router)
 
@@ -12,7 +13,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Hello',
+      name: 'MainMenu',
       // component: Hello
       component: MainMenu,
       redirect: '/DB',
@@ -20,6 +21,10 @@ export default new Router({
         {
           path:'DB',
           component: DBPage
+        },
+        {
+          path:'datafilter',
+          component: DataFilterPage
         },
         {
           path:'echart',

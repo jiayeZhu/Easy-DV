@@ -14,6 +14,7 @@ require('electron').app.on('ready', () => {
 const HIPC = require('./ipcHandler').handleIPC;
 HIPC('connectDB');
 HIPC('aggTest');
+HIPC('barData');
 
 const electron = require('electron')
 // Module to control application life.
