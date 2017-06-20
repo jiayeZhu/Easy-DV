@@ -16,24 +16,25 @@
               <span class="layout-text">数据选取</span>
             </Menu-item>
           </router-link>
-          <router-link to="/echart">
-<Menu-item name="DVbuild" class="flex">
+          <!-- <router-link to="/echart">
+          <Menu-item name="DVbuild" class="flex">
             <Icon type="ios-analytics" :size="iconSize"></Icon>
             <span class="layout-text">可视化数据构建</span>
           </Menu-item>
-          </router-link>
-          
+          </router-link> -->
+          <router-link to="/echart">          
           <Menu-item name="show" class="flex">
             <Icon type="ios-analytics" :size="iconSize"></Icon>
             <span class="layout-text">可视化展示</span>
           </Menu-item>
-          <Menu-item name="save" class="flex">
+          </router-link>
+          <!-- <Menu-item name="save" class="flex">
             <Icon type="ios-analytics" :size="iconSize"></Icon>
             <span class="layout-text">数据存档</span>
-          </Menu-item>
+          </Menu-item> -->
         </Menu>
       </i-col>
-      <i-col :span="spanRight">
+      <i-col :span="spanRight" style="overflow-y:scroll">
         <div class="layout-header">
           <i-button type="text" @click="toggleClick">
               <Icon type="navicon" size="32"></Icon>
@@ -85,7 +86,7 @@ export default {
         'DB':'连接DB',
         'datafilter':'数据选取',
         'DVbuild':'可视化数据构建',
-        'show':'可视化展示',
+        'echart':'可视化展示',
         'save':'数据存档'
       }
       return EnumLevel2[this.$route.path.split('/')[1]];

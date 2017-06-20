@@ -1,20 +1,58 @@
 <template>
   <div>
-      <h1>Aggregation Framework</h1>
-      <Button @click="toggleModal">添加聚合操作</Button>
-      <Button @click="barDataRequest">data</Button>
+      <Spin size="large" fix v-if="spinShow"></Spin>
+      <h1>数据选取与处理</h1>
+      <Select v-model="aggOperator" clearable style="width:200px">
+        <Option v-for="operator in operators" :value="operator.value" :key="operator">{{ operator.label }}</Option>
+      </Select>
+      <Button @click="addPipe(aggOperator)">添加</Button>
+      <Button @click="airdataRequest" type='primary'>下一步</Button>
+      <!-- <Button @click="toggleModal">添加聚合操作</Button> -->
+      <!-- <Button @click="airdataRequest">data</Button> -->
       <div>
-        <div v-for="pipe in aggPipLine">
-          <h2>$match</h2>
-          <p>{{pipe}}</p>
-          <!--<p v-for="item in handleMatch(pipe)">
-            <span>{{item.itemName}}</span>
-            <span>{{item.matchOperator}}</span>
-            <span>{{item.targetName}}</span>
-          </p>-->
-          <!--<span>{{handleMatch(pipe)[0]}}</span>
-          <span>{{handleMatch(pipe)[1]}}</span>
-          <span>{{handleMatch(pipe)[2]}}</span>-->
+        <div v-for="pipe in aggPipLine" style="margin: 10px 0">
+          <div v-if='pipe.type == "$match"'>
+            <h2>{{pipeName(pipe)}}</h2>
+            <Input v-model="pipe.data.a" placeholder="匹配对象" style="width:30%"></Input>
+            <Select v-model="pipe.data.operator" placeholder="匹配方式" clearable style="width:20%">
+              <Option v-for="operator in MatchOpe" :value="operator.value" :key="operator">{{ operator.label }}</Option>
+            </Select>
+            <Input v-model="pipe.data.b" placeholder="匹配值" style="width:30%"></Input>
+            <Checkbox v-model="pipe.data.isNum" style='margin-left:10px'>是否为数字</Checkbox>
+          </div>
+          <div v-if='pipe.type == "$project"'>
+            <h2>{{pipeName(pipe)}}</h2>
+            <div v-for='(proj,index) in pipe.data' style="margin:10px 0">
+              <Input v-model="proj.a" placeholder="字段名" style="width:30%"></Input>
+              <Checkbox v-model="proj.isNeeded" style='margin-left:10px'>是否需要</Checkbox>
+              <Button v-if="index == pipe.data.length-1" @click="addProj(pipe)">继续添加</Button>
+            </div>
+          </div>
+          <div v-if='pipe.type == "$group"'>
+            <h2>{{pipeName(pipe)}}</h2>
+            <Input v-model="pipe.groupBy" placeholder="聚合依据" style="width:30%"></Input>
+            <Checkbox v-model="pipe.isTime" style='margin-left:10px'>是否为时间</Checkbox>
+            <Button @click="addProj(pipe)">添加合成字段</Button>
+            <div v-for='(gp,index) in pipe.data' style="margin:10px 0">
+              <Input v-model="gp.a" placeholder="合成字段名" style="width:30%"></Input>
+              <Select v-model="gp.operator" placeholder="合成方法" clearable style="width:20%">
+                <Option v-for="operator in GroupOpt" :value="operator.value" :key="operator">{{ operator.label }}</Option>
+              </Select>
+              <Input v-model="gp.b" placeholder="来源字段名" style="width:30%"></Input>
+            </div>
+          </div>
+          <div v-if='pipe.type == "$sort"'>
+            <h2>{{pipeName(pipe)}}</h2>
+            <div v-for='(proj,index) in pipe.data' style="margin:10px 0">
+              <Input v-model="proj.a" placeholder="字段名" style="width:30%"></Input>
+              <i-switch v-model="proj.order" size='large' style='margin-left:10px'>
+                <span slot="open">升序</span>
+                <span slot="close">降序</span>
+              </i-switch>
+              <Button v-if="index == pipe.data.length-1" @click="addProj(pipe)">继续添加</Button>
+            </div>
+          </div>
+          
         </div>
 
       </div>
@@ -47,12 +85,14 @@
 </template>
 
 <script>
-const channelHandler = require('../channelHandler');
+const IPCHandler = require('../IPCHandler');
+import * as MT  from '../vuex/mutation-types';
 
 export default {
   name:'datafilter',
   data () {
     return {
+      spinShow:false,
       modal:false,
       aggOperator:'',
       matchPipeLine:[
@@ -62,38 +102,82 @@ export default {
           targetName:''
         }
       ],
+      GroupOpt:[
+        {
+          value:'$avg',
+          label:'求平均'
+        },
+        {
+          value:'$sum',
+          label:'求总和'
+        }
+      ],
+      MatchOpe:[
+        {
+          value:'$eq',
+          label:'等于',
+        },
+        {
+          value:'$gt',
+          label:'大于',
+        },
+        {
+          value:'$lt',
+          label:'小于',
+        },
+        {
+          value:'$gte',
+          label:'大于等于',
+        },
+        {
+          value:'$lte',
+          label:'小于等于',
+        },
+        {
+          value:'$regex',
+          label:'正则表达式'
+        }
+      ],
       operators:[
         {
           value:'$match',
-          label:'match'
+          label:'字段匹配'
         },
         {
           value:'$project',
-          label:'project'
+          label:'字段取舍'
         },
         {
-          value:'$limit',
-          label:'limit'
-        },
-        {
-          value:'$skip',
-          label:'skip'
-        },
-        {
-          value:'$unwind',
-          label:'unwind'
+          value:'$group',
+          label:'字段重组'
         },
         {
           value:'$sort',
-          label:'sort'
+          label:'字段排序'
+        },
+        {
+          value:'$limit',
+          label:'字段限量'
+        },
+        {
+          value:'$skip',
+          label:'字段跳过'
+        },
+        {
+          value:'$unwind',
+          label:'字段分解'
         },
         {
           value:'$count',
-          label:'count'
-        }
+          label:'数量统计'
+        },
+        
       ],
       aggPipLine:[
-        
+        // {
+        //   type:'$match',
+        //   data:{}
+        // }
       ]
     }
   },
@@ -101,6 +185,79 @@ export default {
 
   },
   methods:{
+    toggleSpin () {
+      this.spinShow = !this.spinShow;
+    },
+    completeAgg(){
+      this.toggleSpin();
+      this.$store.commit(MT.CHANGE_STAGE_2_SHOW);
+      this.$router.push('echart');
+    },
+    addProj(pipe){
+      pipe.data.push({})
+    },
+    addPipe (type) {
+      switch(type){
+        case '$match':
+          this.aggPipLine.push({type:type,data:{}});
+          break;
+        case '$project':
+          this.aggPipLine.push({type:type,data:[{}]});
+          break;
+        case '$group':
+          this.aggPipLine.push({type:type,data:[{}]});
+          break;
+        case '$sort':
+          this.aggPipLine.push({type:type,data:[{}]})
+      }
+      
+    },
+    pipeName (pipe) {
+      const dict = {
+        '$match':'字段匹配',
+        '$project':'字段取舍',
+        '$group':'字段重组',
+        '$limit':'字段限量',
+        '$skip':'字段跳过',
+        '$unwind':'字段分解',
+        '$sort':'字段排序',
+        '$count':'数量统计'
+      }
+      return dict[pipe.type]
+    },
+    addMatchPipe () {
+      let {target,operator,value,isNum} = this.input;
+      let pipe = {$match:{}};
+      pipe.$match[target] = {};
+      pipe.$match[target][operator] = (isNum) ? parseFloat(value) : value;
+      return pipe;
+    },
+    addProjectPipe () {
+      let arrProjs = this.input;
+      let pipe = {$project:{}};
+      arrProjs.forEach( each => {
+        pipe.$project[each.target] = (each.selected) ? 1 : 0;
+      });
+      return pipe;
+    },
+    addGroupPipe () {
+      let {groupBy,isTime,arrName} = this.input;
+      let pipe = {$group:{}};
+      let projectAfterGroup = {$project:{}};
+      if(!isTime){
+        pipe.$group._id='$'+groupBy;
+      }else{
+        pipe.$group._id={$dateToString:{format: "%Y-%m-%d", date: "$"+groupBy }};
+      }
+      arrNames.forEach( each => {
+        pipe.$group[each.target] = {};
+        pipe.$group[each.target][each.method] = '$'+each.source;
+        projectAfterGroup.$project[each.target] = 1
+      });
+      projectAfterGroup.$project._id=0;
+      projectAfterGroup.$project[groupBy]='$_id';
+      return {pipe,projectAfterGroup}
+    },
     getFirstProp (obj) {
       return Object.keys(obj)[0];
     },
@@ -169,6 +326,30 @@ export default {
         }
       );
     },
+    async airdataRequest () {
+      this.toggleSpin();
+      let aggPipes = [
+      {$match:{'area':'上海'}},
+      {$project:{area:1,o3:1,co:1,no2:1,pm10:1,pm2_5:1,time_point:1}},
+      {$group:{
+          _id:{$dateToString:{format: "%Y-%m-%d", date: "$time_point" }},
+          '臭氧':{$avg:'$o3'},
+          '一氧化碳':{$avg:'$co'},
+          '二氧化氮':{$avg:'$no2'},
+          'pm10':{$avg:'$pm10'},
+          'pm2_5':{$avg:'$pm2_5'}
+          }
+      },
+      {$project:{'臭氧':1,'一氧化碳':1,'二氧化氮':1,'pm10':1,'pm2_5':1,time_point:"$_id",_id:0,}},
+      {$sort:{time_point:1}},
+      // {$project:{array:['$臭氧','$一氧化碳','$二氧化氮','$pm10','$pm2_5']}}
+      {$group:{_id:null,'臭氧':{$push:'$臭氧'},'一氧化碳':{$push:"$一氧化碳"},'二氧化氮':{$push:"$二氧化氮"},'pm10':{$push:"$pm10"},'pm2_5':{$push:"$pm2_5"},time_point:{$push:"$time_point"}}}
+      ];
+      let result = await IPCHandler('airData',{aggPipes});
+      this.$store.commit(MT.CHANGE_STAGE_2_SHOW);
+      this.$router.push('echart');
+      // console.log(JSON.stringify(result));
+    },
     async barDataRequest () {
       let aggPipes = [
           {
@@ -207,7 +388,7 @@ export default {
               }
           }
       ];
-      let result = await channelHandler('barData',{aggPipes});
+      let result = await IPCHandler('barData',{aggPipes});
       console.log(JSON.stringify(result));
     }
   },

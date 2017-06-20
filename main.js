@@ -15,6 +15,9 @@ const HIPC = require('./ipcHandler').handleIPC;
 HIPC('connectDB');
 HIPC('aggTest');
 HIPC('barData');
+HIPC('airData');
+HIPC('save');
+HIPC('load');
 
 const electron = require('electron')
 // Module to control application life.

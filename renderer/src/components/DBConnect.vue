@@ -10,11 +10,13 @@
     </Row>
     <Spin size="large" fix v-if="spinShow"></Spin>
     <h3 v-if="!spinShow">{{connectionMsg}}</h3>
+
+    <Button @click="load">打开可视化数据存档</Button>
   </div>
 </template>
 
 <script>
-const channelHandler = require('../channelHandler');
+const IPCHandler = require('../IPCHandler');
 import * as MT  from '../vuex/mutation-types';
 
 export default {
@@ -35,31 +37,30 @@ export default {
   },
   methods:{
     async connectDB () {
-        this.spinShow = true;
-        // console.log(this.mongourl);
-        let err = await channelHandler('connectDB',{url:this.dburl});
-        if(err === null){
-          this.connectionMsg='连接成功';
-          // this.$router.push('vuextest');
-          // const toggleSpin = ()=>{
-          //   this.spinShow = !this.spinShow;
-          // }
-          // let router = this.$router;
-          // setTimeout(function() {
-          this.toggleSpin();
-          this.$store.commit(MT.CHANGE_STAGE_2_DATAFILTER);
-          this.$router.push('datafilter');
-          // }, 3000);
-          console.log('successfully connected to the database');
-        }else{
-          this.spinShow = false;
-          this.connectionMsg='连接失败';
-          console.warn('failed to connect to the database:',err);
-        }
-      },
-      toggleSpin () {
-        this.spinShow = !this.spinShow;
+      this.spinShow = true;
+      let err = await IPCHandler('connectDB',{url:this.dburl});
+      if(err === null){
+        this.connectionMsg='连接成功';
+        this.toggleSpin();
+        this.$store.commit(MT.CHANGE_STAGE_2_DATAFILTER);
+        this.$router.push('datafilter');
+        console.log('successfully connected to the database');
+      }else{
+        this.spinShow = false;
+        this.connectionMsg='连接失败';
+        console.warn('failed to connect to the database:',err);
       }
+    },
+    toggleSpin () {
+      this.spinShow = !this.spinShow;
+    },
+    async load(){
+      let data = await IPCHandler('load',{});
+      console.log(data);
+      this.toggleSpin();
+      this.$store.commit(MT.CHANGE_STAGE_2_SHOW);
+      this.$router.push('echart');
+    }
   }
 }
 </script>

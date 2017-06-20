@@ -32,7 +32,7 @@
 
 import * as MT  from '../vuex/mutation-types';
 //  const ipc = window.require('electron').ipcRenderer;
- const channelHandler = require('../channelHandler');
+ const IPCHandler = require('../IPCHandler');
 
 
   export default {
@@ -64,7 +64,7 @@ import * as MT  from '../vuex/mutation-types';
         this.$store.commit(MT.DECREMENT_MAIN_COUNTER)
       },
       test () {
-        channelHandler('getDB').then(console.log);
+        IPCHandler('getDB').then(console.log);
 
       },
       AddAggCondition () {
@@ -72,7 +72,7 @@ import * as MT  from '../vuex/mutation-types';
       },
       async connectDB () {
         // console.log(this.mongourl);
-        let err = await channelHandler('connectDB',{url:this.mongourl});
+        let err = await IPCHandler('connectDB',{url:this.mongourl});
         if(err === null){
            console.log('successfully connected to the database');
         }else{
@@ -106,7 +106,7 @@ import * as MT  from '../vuex/mutation-types';
           console.log(JSON.stringify(query));
         }
 
-        channelHandler('aggTest',{AggItems:aggregationQuery}).then(console.log);
+        IPCHandler('aggTest',{AggItems:aggregationQuery}).then(console.log);
 
         // ipc.send('aggtest',{channel,AggItems:aggregationQuery});
         // console.log('send');

@@ -3,11 +3,11 @@
     return (new Date().getTime() + Math.random() * 10e13).toString(36);
   };
 
-module.exports = function (channelName,channelArg={},NOT_ONCE=false) {
+module.exports = function (IPC_URI,channelArg={}) {
   let channel = createChannel();
   console.log(channel);
   channelArg.channel = channel;
-  ipc.send(channelName,channelArg);
+  ipc.send(IPC_URI,channelArg);
   return new Promise((resolve)=>{
     ipc.once(channel,(event,args)=>{
       resolve(args);

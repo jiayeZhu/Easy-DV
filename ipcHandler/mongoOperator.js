@@ -30,5 +30,11 @@ module.exports = {
     let cursor = collection.aggregate(AggItems,{cursor:{batchSize:10000}});
     // console.log('a',cursor.toArray());
     return cursor.toArray();
+  },
+  airDataQuery (AggItems) {
+    let collection = db.collection('airdata');
+    console.log(JSON.stringify(AggItems));
+    let cursor = collection.aggregate(AggItems,{cursor:{batchSize:10000}});
+    return cursor.toArray();
   }
 };
